@@ -71,11 +71,10 @@ void CoreAppMain::CreateDeviceDependentResources()
 {
 	factory = std::make_unique<EffectFactory>(m_deviceResources->GetD3DDevice());
 
-	model = Model::CreateFromCMO(m_deviceResources->GetD3DDevice(), L"teapot.cmo", *factory);
-
+	model = Model::CreateFromCMO(m_deviceResources->GetD3DDevice(), L"bendy.cmo", *factory);
 	DirectX::CreateDDSTextureFromFile(m_deviceResources->GetD3DDevice(), L"Assets\\check.dds", NULL, m_texture.GetAddressOf());
 	
-	auto loadVSTask = DX::ReadDataAsync(L"demoVS.cso");
+	auto loadVSTask = DX::ReadDataAsync(L"demoSkinningVS.cso");
 	auto loadPSTask = DX::ReadDataAsync(L"demoPS.cso");
 	
 	auto createVSTask = loadVSTask.then([this](const std::vector<byte>& filedata)
@@ -88,15 +87,28 @@ void CoreAppMain::CreateDeviceDependentResources()
 				&m_vertexShader
 			)
 		);
-
+		
 		static const D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
+		{
+			{ "SV_POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TANGENT",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "COLOR",       0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BONEIDS",0, DXGI_FORMAT_R8G8B8A8_UINT,      0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BONEWEIGHTS", 0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		};
+
+
+		//Mesh no skinning info
+		/*static const D3D11_INPUT_ELEMENT_DESC vertexDesc[] =
 		{
 			{ "SV_Position", 0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "NORMAL",      0, DXGI_FORMAT_R32G32B32_FLOAT,    0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TANGENT",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "COLOR",       0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 }
-		};
+		};*/
 
 		DX::ThrowIfFailed(
 			m_deviceResources->GetD3DDevice()->CreateInputLayout(

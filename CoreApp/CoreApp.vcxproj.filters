@@ -74,12 +74,18 @@
     <MeshContentTask Include="Assets\teapot.fbx">
       <Filter>Assets</Filter>
     </MeshContentTask>
+    <MeshContentTask Include="bendy.fbx">
+      <Filter>Assets</Filter>
+    </MeshContentTask>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="demoPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="demoVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="demoSkinningVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
