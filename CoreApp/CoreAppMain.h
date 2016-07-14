@@ -52,7 +52,7 @@ namespace CoreApp
 		Microsoft::WRL::ComPtr<ID3D11PixelShader> m_pixelShader;
 		Microsoft::WRL::ComPtr<ID3D11SamplerState> m_sampler;
 		Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> m_texture;
-
+		float m_x;
 		
 	};
 }

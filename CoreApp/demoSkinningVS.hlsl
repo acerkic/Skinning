@@ -5,19 +5,18 @@ struct VS_INPUT
 	float4 tangent	:	TANGENT;
 	float4  color	:	COLOR;
 	float2 tex		:	TEXCOORD;
-	uint4   bone		:	BONEIDS;
+	uint4   bone	:	BONEIDS;
 	float4 weights	:	BONEWEIGHTS;
 
 };
 
 struct VS_OUTPUT
 {
-	float4 position : SV_POSITION;
-	float3 normal : NORMAL;
-	float4 light :LIGHT;
+	float4 position : SV_Position;
+	float3 normal :NORMAL;
 	float2 tex : TEXCOORD0;
+	float3 light : LIGHT;
 };
-
 
 
 VS_OUTPUT main( in VS_INPUT input)

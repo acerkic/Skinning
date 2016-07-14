@@ -29,16 +29,55 @@
 #include <vector>
 
 #include <stdint.h>
-
 #include <wrl\client.h>
+#include <map>
 
 
 namespace DirectX
 {
+	
     class IEffect;
     class IEffectFactory;
     class CommonStates;
     class ModelMesh;
+
+	struct Bone
+	{
+		//std::wstring Name;
+		INT ParentIndex;
+		DirectX::XMFLOAT4X4 InvBindPos;
+		DirectX::XMFLOAT4X4 BindPos;
+		DirectX::XMFLOAT4X4 LocalTransform;
+	};
+
+	struct Clip
+	{
+		float StartTime;
+		float EndTime;
+		UINT  keys;
+	};
+
+	struct Keyframe
+	{
+		Keyframe() : BoneIndex(0), Time(0.0f) {};
+
+		UINT BoneIndex;
+		float Time;
+		DirectX::XMFLOAT4X4 Transform;
+	};
+
+	
+	typedef std::vector<Keyframe> KeyframeArray;
+
+	struct AnimClip
+	{
+		float StartTime;
+		float EndTime;
+		KeyframeArray Keyframes;
+	};
+
+	typedef std::map<const std::wstring, AnimClip> AnimationClipMap;
+
 
     //----------------------------------------------------------------------------------
     // Each mesh part is a submesh with a single effect
@@ -60,8 +99,8 @@ namespace DirectX
         std::shared_ptr<IEffect>                                effect;
         std::shared_ptr<std::vector<D3D11_INPUT_ELEMENT_DESC>>  vbDecl;
         bool                                                    isAlpha;
-
-        typedef std::vector<std::unique_ptr<ModelMeshPart>> Collection;
+		
+		typedef std::vector<std::unique_ptr<ModelMeshPart>> Collection;
 
         // Draw mesh part with custom effect
         void __cdecl Draw( _In_ ID3D11DeviceContext* deviceContext, _In_ IEffect* ieffect, _In_ ID3D11InputLayout* iinputLayout,
@@ -89,8 +128,10 @@ namespace DirectX
         std::wstring                name;
         bool                        ccw;
         bool                        pmalpha;
-
-        typedef std::vector<std::shared_ptr<ModelMesh>> Collection;
+		typedef std::vector<std::shared_ptr<ModelMesh>> Collection;
+		//typedef std::map<const std::wstring, Clip> AnimationClipMap;
+		AnimationClipMap  animationClips;
+		std::vector<Bone> boneInfo;
 
         // Setup states for drawing mesh
         void __cdecl PrepareForRendering( _In_ ID3D11DeviceContext* deviceContext, CommonStates& states, bool alpha = false, bool wireframe = false ) const;

@@ -95,7 +95,7 @@ void CoreAppMain::CreateDeviceDependentResources()
 			{ "TANGENT",     0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "COLOR",       0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "TEXCOORD",    0, DXGI_FORMAT_R32G32_FLOAT,       0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-			{ "BONEIDS",0, DXGI_FORMAT_R8G8B8A8_UINT,      0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+			{ "BONEIDS",	 0, DXGI_FORMAT_R8G8B8A8_UINT,      0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 			{ "BONEWEIGHTS", 0, DXGI_FORMAT_R8G8B8A8_UNORM,     0, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 		};
 
@@ -176,7 +176,7 @@ void CoreAppMain::Update()
 		// TODO: Replace this with your app's content update functions.
 	
 		rotation += 1.f * m_timer.GetElapsedSeconds();;
-	
+		
 	});
 }
 
@@ -227,6 +227,26 @@ bool CoreAppMain::Render()
 		0
 	);
 	
+	//Use Model to render using the DXTool Kit 
+	//states=std::unique_ptr<CommonStates>(new CommonStates(m_deviceResources->GetD3DDevice()));
+	/*CommonStates sts(m_deviceResources->GetD3DDevice());
+	for (auto i = model->meshes.cbegin(); i != model->meshes.cend(); ++i)
+	{
+		ModelMesh* mesh = i->get();
+		for (auto part = mesh->meshParts.cbegin(); part != mesh->meshParts.cend(); ++part)
+		{
+	
+			ModelMeshPart * meshPart = (*part).get();
+			auto effect = dynamic_cast<IEffectSkinning*>(meshPart->effect.get());
+			effect->SetBoneTransforms(&XMMatrixTranslation(m_x, 0.0f, 0.0f), 1);
+		}
+	
+	}
+
+	model->Draw(context, sts, world, view, proj);*/
+	//return true;
+
+
 	///Render meshes
 	for (auto i = model->meshes.cbegin(); i != model->meshes.cend(); ++i)
 	{
@@ -308,6 +328,8 @@ bool CoreAppMain::Render()
 		 context->PSSetSamplers(0, 1, samplerStates);
 
 		 ModelMesh* mesh = i->get();
+		 
+		 context->VSSetConstantBuffers1(0,1,)
 
 		for (auto part = mesh->meshParts.cbegin(); part != mesh->meshParts.cend(); ++part)
 		{
@@ -330,7 +352,12 @@ bool CoreAppMain::Render()
 				meshPart->indexFormat,
 				meshPart->vertexOffset
 			);
+		 
+			auto effect = dynamic_cast<IEffectSkinning*>(meshPart->effect.get());
+			effect->SetBoneTransforms(&XMMatrixTranslation(m_x,0.0f,0.0f),0);
 
+			//Set bones and transforms
+			
 			context->PSSetShaderResources(0, 1, m_texture.GetAddressOf());
 			
 			context->VSSetShader(m_vertexShader.Get(), nullptr, 0);

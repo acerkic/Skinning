@@ -93,8 +93,10 @@ namespace DirectX
         virtual void __cdecl SetWeightsPerVertex(int value) = 0;
         virtual void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) = 0;
         virtual void __cdecl ResetBoneTransforms() = 0;
-
+		
         static const int MaxBones = 72;
+	
+		
     };
 
 
@@ -386,6 +388,7 @@ namespace DirectX
         void __cdecl SetWeightsPerVertex(int value) override;
         void __cdecl SetBoneTransforms(_In_reads_(count) XMMATRIX const* value, size_t count) override;
         void __cdecl ResetBoneTransforms() override;
+
 
     private:
         // Private implementation.

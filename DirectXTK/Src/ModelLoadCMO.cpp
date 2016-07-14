@@ -135,29 +135,34 @@ namespace VSD3DStarter
         float MaxX, MaxY, MaxZ;
     };
 
-    struct Bone
-    {
-        INT ParentIndex;
-        DirectX::XMFLOAT4X4 InvBindPos;
-        DirectX::XMFLOAT4X4 BindPos;
-        DirectX::XMFLOAT4X4 LocalTransform;
-    };
-    
-    struct Clip
-    {
-        float StartTime;
-        float EndTime;
-        UINT  keys;
-    };
+  //  struct Bone
+  //  {
+		////std::wstring Name;
+  //      INT ParentIndex;
+  //      DirectX::XMFLOAT4X4 InvBindPos;
+  //      DirectX::XMFLOAT4X4 BindPos;
+  //      DirectX::XMFLOAT4X4 LocalTransform;
+  //  };
+  //  
+  //  struct Clip
+  //  {
+  //      float StartTime;
+  //      float EndTime;
+  //      UINT  keys;
+  //  };
 
-    struct Keyframe
-    {
-        UINT BoneIndex;
-        float Time;
-        DirectX::XMFLOAT4X4 Transform;
-    };
+  //  struct Keyframe
+  //  {
+		//Keyframe() : BoneIndex(0), Time(0.0f) {}
 
-    #pragma pack(pop)
+  //      UINT BoneIndex;
+  //      float Time;
+  //      DirectX::XMFLOAT4X4 Transform;
+  //  };
+
+	//typedef std::map<const std::wstring, Clip> AnimationClipMap;
+
+// #pragma pack(pop)
 
 }; // namespace
 
@@ -165,9 +170,9 @@ static_assert( sizeof(VSD3DStarter::Material) == 132, "CMO Mesh structure size i
 static_assert( sizeof(VSD3DStarter::SubMesh) == 20, "CMO Mesh structure size incorrect" );
 static_assert( sizeof(VSD3DStarter::SkinningVertex)== 32, "CMO Mesh structure size incorrect" );
 static_assert( sizeof(VSD3DStarter::MeshExtents)== 40, "CMO Mesh structure size incorrect" );
-static_assert( sizeof(VSD3DStarter::Bone) == 196, "CMO Mesh structure size incorrect" );
-static_assert( sizeof(VSD3DStarter::Clip) == 12, "CMO Mesh structure size incorrect" );
-static_assert( sizeof(VSD3DStarter::Keyframe)== 72, "CMO Mesh structure size incorrect" );
+static_assert( sizeof(Bone) == 196, "CMO Mesh structure size incorrect" );
+static_assert( sizeof(Clip) == 12, "CMO Mesh structure size incorrect" );
+static_assert( sizeof(Keyframe)== 72, "CMO Mesh structure size incorrect" );
 
 //--------------------------------------------------------------------------------------
 struct MaterialRecordCMO
@@ -521,10 +526,12 @@ std::unique_ptr<Model> DirectX::Model::CreateFromCMO( ID3D11Device* d3dDevice, c
         XMVECTOR max = XMVectorSet( extents->MaxX, extents->MaxY, extents->MaxZ, 0.f );
         BoundingBox::CreateFromPoints( mesh->boundingBox, min, max );
 
-#if 0
+
+#if 1
         // Animation data
         if ( *bSkeleton )
         {
+			auto meshBones = mesh->boneInfo;
             // Bones
             auto nBones = reinterpret_cast<const UINT*>( meshData + usedSize );
             usedSize += sizeof(UINT);
@@ -533,7 +540,7 @@ std::unique_ptr<Model> DirectX::Model::CreateFromCMO( ID3D11Device* d3dDevice, c
 
             if ( !*nBones )
                 throw std::exception("Animation bone data is missing\n");
-
+			
             for( UINT j = 0; j < *nBones; ++j )
             {
                 // Bone name
@@ -549,16 +556,18 @@ std::unique_ptr<Model> DirectX::Model::CreateFromCMO( ID3D11Device* d3dDevice, c
                     throw std::exception("End of file");
                 
                 // TODO - What to do with bone name?
-                boneName;
+                 boneName;
 
                 // Bone settings
-                auto bones = reinterpret_cast<const VSD3DStarter::Bone*>( meshData + usedSize );
-                usedSize += sizeof(VSD3DStarter::Bone);
+                auto bones = reinterpret_cast<const Bone*>( meshData + usedSize );
+                usedSize += sizeof(Bone);
                 if ( dataSize < usedSize )  
                     throw std::exception("End of file");
 
                 // TODO - What to do with bone data?
-                bones;
+               
+				meshBones.push_back(*bones);
+			
             }
 
             // Animation Clips
@@ -567,6 +576,8 @@ std::unique_ptr<Model> DirectX::Model::CreateFromCMO( ID3D11Device* d3dDevice, c
             if ( dataSize < usedSize )
                 throw std::exception("End of file");
 
+			auto meshClips = mesh->animationClips;
+			
             for( UINT j = 0; j < *nClips; ++j )
             {
                 // Clip name
@@ -584,21 +595,32 @@ std::unique_ptr<Model> DirectX::Model::CreateFromCMO( ID3D11Device* d3dDevice, c
                 // TODO - What to do with clip name?
                 clipName;
 
-                auto clip = reinterpret_cast<const VSD3DStarter::Clip*>( meshData + usedSize );
-                usedSize += sizeof(VSD3DStarter::Clip);
+                auto clip = reinterpret_cast<const Clip*>( meshData + usedSize );
+                usedSize += sizeof(Clip);
                 if ( dataSize < usedSize )
                     throw std::exception("End of file");
 
                 if ( !clip->keys )
                     throw std::exception("Keyframes missing in clip");
+				
+				/*for (int i = 0; i < clip->keys; ++i)
+				{*/
+					auto key = reinterpret_cast<const Keyframe*>(meshData + usedSize);
 
-                auto keys = reinterpret_cast<const VSD3DStarter::Keyframe*>( meshData + usedSize );
-                usedSize += sizeof(VSD3DStarter::Keyframe) * clip->keys;
-                if ( dataSize < usedSize )  
-                    throw std::exception("End of file");
+					usedSize += sizeof(Keyframe) * clip->keys;
+				
+					if (dataSize < usedSize)
+						throw std::exception("End of file");
 
-                // TODO - What to do with keys and clip->StartTime, clip->EndTime?
-                keys;
+					meshClips[clipName].StartTime = clip->StartTime;
+					meshClips[clipName].EndTime = clip->EndTime;
+
+					meshClips[clipName].Keyframes.push_back(*key);
+					
+					// are we getting all the clips?
+				/*}*/
+
+
             }
         }
 #else
