@@ -123,6 +123,10 @@
     <ClInclude Include="Src\LoaderHelpers.h">
       <Filter>Src</Filter>
     </ClInclude>
+    <ClInclude Include="Inc\ppltasks_extra.h" />
+    <ClInclude Include="Inc\DirectXHelper.h" />
+    <ClInclude Include="Inc\StepTimer.h" />
+    <ClInclude Include="Inc\XboxDDSTextureLoader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Inc\SimpleMath.inl">

@@ -169,6 +169,7 @@ void App::OnVisibilityChanged(CoreWindow^ sender, VisibilityChangedEventArgs^ ar
 
 void App::OnWindowClosed(CoreWindow^ sender, CoreWindowEventArgs^ args)
 {
+	m_main->OnDeviceLost();
 	m_windowClosed = true;
 }
 

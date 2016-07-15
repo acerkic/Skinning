@@ -1,25 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Common">
-      <UniqueIdentifier>1b92e986-d822-4904-92bc-2ef0268b0d56</UniqueIdentifier>
-    </Filter>
     <Filter Include="Assets">
       <UniqueIdentifier>55571295-21a5-40a3-8a51-bbd3a6a5adc3</UniqueIdentifier>
       <Extensions>bmp;fbx;gif;jpg;jpeg;tga;tiff;tif;png</Extensions>
     </Filter>
-    <ClInclude Include="Common\DirectXHelper.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\StepTimer.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClInclude Include="Common\DeviceResources.h">
-      <Filter>Common</Filter>
-    </ClInclude>
-    <ClCompile Include="Common\DeviceResources.cpp">
-      <Filter>Common</Filter>
-    </ClCompile>
     <Image Include="Assets\LockScreenLogo.scale-200.png">
       <Filter>Assets</Filter>
     </Image>
@@ -46,6 +31,7 @@
     <ClCompile Include="App.cpp" />
     <ClCompile Include="CoreAppMain.cpp" />
     <ClCompile Include="pch.cpp" />
+    <ClCompile Include="Common\DeviceResources.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="App.h" />
@@ -54,6 +40,9 @@
     <ClInclude Include="ShaderStructures.h">
       <Filter>Shaders</Filter>
     </ClInclude>
+    <ClInclude Include="Common\DeviceResources.h" />
+    <ClInclude Include="Common\Animation.h" />
+    <ClInclude Include="Common\VSD3DStarter.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -88,5 +77,9 @@
     <FxCompile Include="demoSkinningVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
+    <FxCompile Include="VSD3dStarterVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="SkinningVertexShader.hlsl" />
   </ItemGroup>
 </Project>
