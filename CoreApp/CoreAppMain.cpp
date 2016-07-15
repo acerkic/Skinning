@@ -121,7 +121,7 @@ void CoreAppMain::CreateDeviceDependentResources()
 	m_graphics,
 	L"bendy.cmo",
 	L"", //shader location
-	L"", //texture location
+	L"assets\\check.dds", //texture location
 		m_meshModels).then([this]()  //When done loading file, reset the animation
 	{
 		for (Mesh* m : m_meshModels)
