@@ -42,7 +42,9 @@
     </ClInclude>
     <ClInclude Include="Common\DeviceResources.h" />
     <ClInclude Include="Common\Animation.h" />
-    <ClInclude Include="Common\VSD3DStarter.h" />
+    <ClInclude Include="Common\VSD3DStarter.h">
+      <Filter>Shaders</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">

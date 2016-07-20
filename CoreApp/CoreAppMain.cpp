@@ -76,7 +76,7 @@ void CoreAppMain::CreateWindowSizeDependentResources()
 
 
 	//create light for the scene
-	static const XMVECTORF32 lightPos = {5.0f, 5.0f, -2.5f, 0.f};
+	static const XMVECTORF32 lightPos = {0.0f, 0.0f, -2.5f, 0.f};
 
 	XMFLOAT4 dir;
 	DirectX::XMStoreFloat4(&dir, XMVector3Normalize(lightPos));
@@ -87,7 +87,7 @@ void CoreAppMain::CreateWindowSizeDependentResources()
 	m_lightConstants.IsPointLight[0]=false;
 	m_lightConstants.LightColor[0] = XMFLOAT4(.8f, .8f, .8f, 1.0f);
 	m_lightConstants.LightDirection[0] = dir;
-	m_lightConstants.LightSpecularIntensity[0].x = 2;
+	m_lightConstants.LightSpecularIntensity[0].x = 3;
 
 	m_graphics.UpdateLightConstants(m_lightConstants);
 
@@ -122,7 +122,7 @@ void CoreAppMain::CreateDeviceDependentResources()
 	L"bendy.cmo",
 	L"", //shader location
 	L"assets\\check.dds", //texture location
-		m_meshModels).then([this]()  //When done loading file, reset the animation
+		m_meshModels,true, L"demoPS.cso").then([this]()  //When done loading file, reset the animation
 	{
 		for (Mesh* m : m_meshModels)
 		{
@@ -194,7 +194,7 @@ bool CoreAppMain::Render()
 	context->ClearRenderTargetView(m_deviceResources->GetBackBufferRenderTargetView(), DirectX::Colors::DarkSlateGray);
 	context->ClearDepthStencilView(m_deviceResources->GetDepthStencilView(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	XMMATRIX modelRotation = XMMatrixRotationY(rotation);
+	XMMATRIX modelRotation = XMMatrixRotationX(-90); //XMMatrixRotationY(rotation);
 	//set render targets
 	auto rtv = m_deviceResources->GetBackBufferRenderTargetView();
 	auto dsv = m_deviceResources->GetDepthStencilView();

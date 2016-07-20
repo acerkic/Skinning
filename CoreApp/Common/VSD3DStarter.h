@@ -969,7 +969,8 @@ namespace VSD3DStarter
 			const std::wstring& shaderPathLocation,
 			const std::wstring& texturePathLocation,
 			std::vector<Mesh*>& loadedMeshes,
-			bool clearLoadedMeshesVector = true
+			bool clearLoadedMeshesVector = true,
+			const std::wstring& testPixelShaderLocation =L""
 			)
 		{
 			// Clear the output vector.
@@ -988,7 +989,7 @@ namespace VSD3DStarter
 				return Windows::Storage::FileIO::ReadBufferAsync(file);
 			})
 				// Then read the meshes.
-				.then([&graphics, shaderPathLocation, texturePathLocation, &loadedMeshes](Windows::Storage::Streams::IBuffer^ buffer)
+				.then([&graphics, shaderPathLocation, texturePathLocation, &loadedMeshes, testPixelShaderLocation](Windows::Storage::Streams::IBuffer^ buffer)
 			{
 				auto reader = Windows::Storage::Streams::DataReader::FromBuffer(buffer);
 				reader->ByteOrder = Windows::Storage::Streams::ByteOrder::LittleEndian;
@@ -1004,9 +1005,9 @@ namespace VSD3DStarter
 
 				// For each mesh in the scene, load it from the file.
 
-				return concurrency::extras::create_iterative_task([reader, &graphics, shaderPathLocation, texturePathLocation, &loadedMeshes, remainingMeshesToRead]()
+				return concurrency::extras::create_iterative_task([reader, &graphics, shaderPathLocation, texturePathLocation, &loadedMeshes, remainingMeshesToRead,testPixelShaderLocation]()
 				{
-					return Mesh::ReadAsync(reader, graphics, shaderPathLocation, texturePathLocation)
+					return Mesh::ReadAsync(reader, graphics, shaderPathLocation, texturePathLocation,testPixelShaderLocation)
 						.then([&loadedMeshes, remainingMeshesToRead](Mesh* mesh) -> bool
 					{
 						if (mesh != nullptr)
@@ -1065,7 +1066,7 @@ namespace VSD3DStarter
 			ReadString(reader, output, count);
 		}
 
-		static concurrency::task<Mesh*> ReadAsync(Windows::Storage::Streams::DataReader^ reader, Graphics& graphics, const std::wstring& shaderPathLocation, const std::wstring& texturePathLocation)
+		static concurrency::task<Mesh*> ReadAsync(Windows::Storage::Streams::DataReader^ reader, Graphics& graphics, const std::wstring& shaderPathLocation, const std::wstring& texturePathLocation, const std::wstring& testPixelShaderLocation=L"")
 		{
 			std::vector<concurrency::task<void>> innerTasks;
 
@@ -1104,39 +1105,58 @@ namespace VSD3DStarter
 				material.VertexShader = graphics.GetVertexShader();
 
 				material.SamplerState = graphics.GetSamplerState();
+				UINT stringLen;
 
 				// Read the size of the name of the pixel shader.
-				UINT stringLen = reader->ReadUInt32();
-				if (stringLen > 0)
+				if (testPixelShaderLocation.size() > 0)
 				{
-					// Read the pixel shader name.
+					//read the data to advance the reader but don't do anything with it. we are replacing the shader with our test shader 
+					stringLen = reader->ReadUInt32();
 					std::wstring sourceFile;
 					ReadString(reader, &sourceFile, stringLen);
 
-					// Continue loading pixel shader if name is not empty.
-					if (!sourceFile.empty())
+					sourceFile = testPixelShaderLocation;
+
+					// Get or create the pixel shader.
+					innerTasks.push_back(graphics.GetOrCreatePixelShaderAsync(sourceFile).then([&material](ID3D11PixelShader* materialPixelShader)
 					{
-						// Create well-formed file name for the pixel shader.
-						Mesh::StripPath(sourceFile);
+						material.PixelShader = materialPixelShader;
+					}));
+				}
+				else
+				{
+					stringLen = reader->ReadUInt32();
+					if (stringLen > 0)
+					{
+						// Read the pixel shader name.
+						std::wstring sourceFile;
+						ReadString(reader, &sourceFile, stringLen);
 
-						// Use fallback shader if Pixel Shader Model 4.0 is not supported.
-						if (graphics.GetDeviceFeatureLevel() < D3D_FEATURE_LEVEL_10_0)
+						// Continue loading pixel shader if name is not empty.
+						if (!sourceFile.empty())
 						{
-							// This device is not compatible with Pixel Shader Model 4.0.
-							// Try to fall back to a shader with the same name but compiled from HLSL.
-							size_t lastUnderline = sourceFile.find_last_of('_');
-							size_t firstDotAfterLastUnderline = sourceFile.find_first_of('.', lastUnderline);
-							sourceFile = sourceFile.substr(lastUnderline + 1, firstDotAfterLastUnderline - lastUnderline) + L"cso";
+							// Create well-formed file name for the pixel shader.
+							Mesh::StripPath(sourceFile);
+
+							// Use fallback shader if Pixel Shader Model 4.0 is not supported.
+							if (graphics.GetDeviceFeatureLevel() < D3D_FEATURE_LEVEL_10_0)
+							{
+								// This device is not compatible with Pixel Shader Model 4.0.
+								// Try to fall back to a shader with the same name but compiled from HLSL.
+								size_t lastUnderline = sourceFile.find_last_of('_');
+								size_t firstDotAfterLastUnderline = sourceFile.find_first_of('.', lastUnderline);
+								sourceFile = sourceFile.substr(lastUnderline + 1, firstDotAfterLastUnderline - lastUnderline) + L"cso";
+							}
+
+							// Append the base path.
+							sourceFile = shaderPathLocation + sourceFile;
+
+							// Get or create the pixel shader.
+							innerTasks.push_back(graphics.GetOrCreatePixelShaderAsync(sourceFile).then([&material](ID3D11PixelShader* materialPixelShader)
+							{
+								material.PixelShader = materialPixelShader;
+							}));
 						}
-
-						// Append the base path.
-						sourceFile = shaderPathLocation + sourceFile;
-
-						// Get or create the pixel shader.
-						innerTasks.push_back(graphics.GetOrCreatePixelShaderAsync(sourceFile).then([&material](ID3D11PixelShader* materialPixelShader)
-						{
-							material.PixelShader = materialPixelShader;
-						}));
 					}
 				}
 
