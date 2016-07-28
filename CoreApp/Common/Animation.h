@@ -182,7 +182,7 @@ public:
 	}
 
 	// Renders the mesh using the skinned mesh renderer.
-	void RenderSkinnedMesh(VSD3DStarter::Mesh* mesh, const VSD3DStarter::Graphics& graphics, const DirectX::XMMATRIX& world)
+	void RenderSkinnedMesh(VSD3DStarter::Mesh* mesh, const VSD3DStarter::Graphics& graphics, const DirectX::XMMATRIX& world, ID3D11DomainShader *ds=nullptr, ID3D11HullShader* hs=nullptr)
 	{
 		ID3D11DeviceContext* deviceContext = graphics.GetDeviceContext();
 
@@ -289,11 +289,21 @@ public:
 
 				// Assign shaders, samplers and texture resources.
 
-
 				// NOTE: Set the skinning shader here.
 				deviceContext->VSSetShader(m_skinningShader.Get(), nullptr, 0);
-
 				ID3D11SamplerState* samplerState = material.SamplerState.Get();
+				if (ds)
+				{
+					deviceContext->DSSetShader(ds, nullptr, 0);
+					deviceContext->DSGetSamplers(0,1, &samplerState);
+				}
+
+				if (hs)
+				{
+					deviceContext->HSSetShader(hs, nullptr, 0);
+				}
+
+				
 				if (supportsShaderResources)
 				{
 					deviceContext->VSSetSamplers(0, 1, &samplerState);
@@ -313,6 +323,7 @@ public:
 
 					deviceContext->PSSetShaderResources(0 + tex, 1, &shaderResourceView);
 					deviceContext->PSSetShaderResources(VSD3DStarter::Mesh::MaxTextures + tex, 1, &shaderResourceView);
+
 				}
 
 				// Draw the submesh.

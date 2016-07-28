@@ -596,7 +596,7 @@ namespace VSD3DStarter
 		ID3D11SamplerState* GetSamplerState() const { return m_sampler.Get(); }
 		ID3D11InputLayout* GetVertexInputLayout() const { return m_vertexLayout.Get(); }
 		ID3D11VertexShader* GetVertexShader() const { return m_vertexShader.Get(); }
-
+	
 		concurrency::task<ID3D11PixelShader*> GetOrCreatePixelShaderAsync(const std::wstring& shaderName)
 		{
 			auto iter = m_pixelShaderResources.find(shaderName);
@@ -662,6 +662,8 @@ namespace VSD3DStarter
 			}
 		}
 
+
+
 		// Methods to update constant buffers.
 		void UpdateMaterialConstants(const MaterialConstants& data) const
 		{
@@ -680,6 +682,7 @@ namespace VSD3DStarter
 			m_deviceContext->UpdateSubresource(m_miscConstants.Get(), 0, nullptr, &data, 0, 0);
 		}
 
+	
 	private:
 		ID3D11ShaderResourceView* CreateTextureFromDDSInMemory(const BYTE* ddsData, size_t ddsDataSize)
 		{
@@ -720,6 +723,7 @@ namespace VSD3DStarter
 		Microsoft::WRL::ComPtr<ID3D11InputLayout> m_vertexLayout;
 		Microsoft::WRL::ComPtr<ID3D11VertexShader> m_vertexShader;
 		Microsoft::WRL::ComPtr<ID3D11Texture2D> m_nullTexture;
+
 	};
 	//
 	//
@@ -934,6 +938,8 @@ namespace VSD3DStarter
 					ID3D11SamplerState* sampler = material.SamplerState.Get();
 
 					deviceContext->VSSetShader(material.VertexShader.Get(), nullptr, 0);
+
+
 					if (supportsShaderResources)
 					{
 						deviceContext->VSSetSamplers(0, 1, &sampler);

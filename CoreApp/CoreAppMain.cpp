@@ -249,7 +249,7 @@ bool CoreAppMain::Render()
 
 		if (m_meshModels[i]->Tag != nullptr)
 		{
-			m_skinnedMeshRenderer.RenderSkinnedMesh(m_meshModels[i], m_graphics, modelRotation);
+			m_skinnedMeshRenderer.RenderSkinnedMesh(m_meshModels[i], m_graphics, modelRotation,m_domainShader.Get(), m_hullShader.Get());
 		}
 		else
 		{
