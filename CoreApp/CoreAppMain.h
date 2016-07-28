@@ -64,7 +64,8 @@ namespace CoreApp
 		//Microsoft::WRL::ComPtr<ID3D11BlendState> m_blendState;
 		//Microsoft::WRL::ComPtr<ID3D11RasterizerState> m_rasterizerState;
 
-
+		Microsoft::WRL::ComPtr<ID3D11DomainShader> m_domainShader;
+		Microsoft::WRL::ComPtr<ID3D11HullShader> m_hullShader;
 
 		///vsd3d stuff
 		SkinnedMeshRenderer m_skinnedMeshRenderer;
@@ -74,8 +75,7 @@ namespace CoreApp
 		VSD3DStarter::Graphics m_graphics;
 		VSD3DStarter::LightConstants m_lightConstants;
 		VSD3DStarter::MiscConstants m_miscConstants;
-
-		bool m_loaded;
+		bool domain_loaded, hull_loaded,  m_loaded;
 		
 	};
 }

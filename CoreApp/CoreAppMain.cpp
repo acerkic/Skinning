@@ -76,7 +76,7 @@ void CoreAppMain::CreateWindowSizeDependentResources()
 
 
 	//create light for the scene
-	static const XMVECTORF32 lightPos = {0.0f, 0.0f, -2.5f, 0.f};
+	static const XMVECTORF32 lightPos = {0.0f, 3.0f, 5.0f, 0.f};
 
 	XMFLOAT4 dir;
 	DirectX::XMStoreFloat4(&dir, XMVector3Normalize(lightPos));
@@ -102,7 +102,7 @@ void CoreAppMain::CreateDeviceDependentResources()
 	//creates standard input layout
 	//creates standard vertex shader from file VSD3dshadervs
 	//Creates a new "empty" texture so that pixel shader works
-	m_graphics.Initialize(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext(),m_deviceResources->GetDeviceFeatureLevel());
+	m_graphics.Initialize(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext(), m_deviceResources->GetDeviceFeatureLevel());
 
 	//Create rasterizer state for no culling
 	CD3D11_RASTERIZER_DESC d3dRas(D3D11_DEFAULT);
@@ -118,11 +118,11 @@ void CoreAppMain::CreateDeviceDependentResources()
 	//load mesh
 
 	auto loadMesh = Mesh::LoadFromFileAsync(
-	m_graphics,
-	L"bendy.cmo",
-	L"", //shader location
-	L"assets\\check.dds", //texture location
-		m_meshModels,true, L"demoPS.cso").then([this]()  //When done loading file, reset the animation
+		m_graphics,
+		L"bendy.cmo",
+		L"", //shader location
+		L"assets\\check.dds", //texture location
+		m_meshModels, true, L"demoPS.cso").then([this]()  //When done loading file, reset the animation
 	{
 		for (Mesh* m : m_meshModels)
 		{
@@ -134,24 +134,62 @@ void CoreAppMain::CreateDeviceDependentResources()
 				m->Tag = animState;
 			}
 		}
-		
+
 		//each mesh has a its own "Time" used to control the glow effect?
 		m_time.clear();
-	
+
 		for (size_t i = 0; i < m_meshModels.size(); i++)
 		{
 			m_time.push_back(0.0f);
-			
+
 		}
 	});
 
+	auto loadDomainShaderTask = DX::ReadDataAsync(L"demoDS.cso");
+	auto loadHullShaderTask = DX::ReadDataAsync(L"demoHS.cso");
+
+	loadDomainShaderTask.then([this](const std::vector<byte>& data) {
+
+		m_deviceResources->GetD3DDevice()->CreateDomainShader(
+			&data[0],
+			data.size(),
+			nullptr,
+			m_domainShader.GetAddressOf()
+		);
+
+		if (m_domainShader)
+			domain_loaded = true;
+	});
+
+
+
+
+	loadHullShaderTask.then([this](const std::vector<byte>& data) {
+
+		m_deviceResources->GetD3DDevice()->CreateHullShader(
+		&data[0],
+		data.size(),
+		nullptr,
+		m_hullShader.GetAddressOf()
+		);
+
+		if (m_hullShader)
+			hull_loaded = true;
+
+	});
 
 	//Init skinded Mesh rendrer
 	auto initSkinMeshRenderer = m_skinnedMeshRenderer.InitializeAsync(m_deviceResources->GetD3DDevice(), m_deviceResources->GetD3DDeviceContext());
 
+	(loadMesh && initSkinMeshRenderer).then([this]() {
+		
+		if (domain_loaded && hull_loaded)
+		{
+			m_loaded = true;
+		}
+	});
 
 	//once tasks are done, the scene is ready to render. 
-	(loadMesh && initSkinMeshRenderer).then([this]() {m_loaded = true; });
 	
 	rotation = 0.0;
 }

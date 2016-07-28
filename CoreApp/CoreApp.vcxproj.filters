@@ -26,6 +26,9 @@
     <Filter Include="Shaders">
       <UniqueIdentifier>{503d4e09-d81f-41d6-b1e4-badf3c9690dc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Shaders\unused">
+      <UniqueIdentifier>{4bef0bfe-713c-4143-9407-2d6846ad5ce2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="App.cpp" />
@@ -42,9 +45,7 @@
     </ClInclude>
     <ClInclude Include="Common\DeviceResources.h" />
     <ClInclude Include="Common\Animation.h" />
-    <ClInclude Include="Common\VSD3DStarter.h">
-      <Filter>Shaders</Filter>
-    </ClInclude>
+    <ClInclude Include="Common\VSD3DStarter.h" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Assets\StoreLogo.png">
@@ -73,15 +74,23 @@
     <FxCompile Include="demoPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="demoVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
-    <FxCompile Include="demoSkinningVS.hlsl">
-      <Filter>Shaders</Filter>
-    </FxCompile>
     <FxCompile Include="VSD3dStarterVS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="SkinningVertexShader.hlsl" />
+    <FxCompile Include="SkinningVertexShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="DemoHS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="demoDS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="demoSkinningVS.hlsl">
+      <Filter>Shaders\unused</Filter>
+    </FxCompile>
+    <FxCompile Include="demoVS.hlsl">
+      <Filter>Shaders\unused</Filter>
+    </FxCompile>
   </ItemGroup>
 </Project>
